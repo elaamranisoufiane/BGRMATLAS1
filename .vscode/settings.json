@@ -1,0 +1,8 @@
+{
+    "appService.zipIgnorePattern": [
+        "node_modules{,/**}",
+        ".vscode{,/**}"
+    ],
+    "appService.defaultWebAppToDeploy": "/subscriptions/ba965aa3-fb4a-447d-84cc-c0f763d3d37e/resourceGroups/BGIAAPP/providers/Microsoft.Web/sites/BGAPPIA2",
+    "appService.deploySubpath": "."
+}
