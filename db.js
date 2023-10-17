@@ -11,12 +11,17 @@ const db = mysql.createPool({
         database: 'bgai',
     */
 
-    host: 'sql9.freemysqlhosting.net',
-    user: 'sql9652325',
-    password: 'H8SKXvKz34',
-    database: 'sql9652325',
+    host: 'sql11.freemysqlhosting.net',
+    user: 'sql11654039',
+    password: 'Yty2szZqa8',
+    database: 'sql11654039',
 
-
+    /*
+     host: 'bgai.mysql.database.azure.com',
+     user: 'bgai',
+     password: 'Sql11653990',
+     database: 'bgai',
+ */
 });
 
 module.exports = db;

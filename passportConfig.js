@@ -33,6 +33,8 @@ module.exports = function (passport) {
             const userInfo = {
                 id: result[0].id,
                 username: result[0].username,
+                email: result[0].email,
+                coupon: result[0].coupon,
                 Login: true
             }
             done(null, userInfo);

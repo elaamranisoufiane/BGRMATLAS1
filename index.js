@@ -182,8 +182,8 @@ app.get('/checkAuthUser', (req, res) => {
 
 //APIs
 //rm bg
-app.get('/api/rmbg/:url', authMiddleware, async (req, res) => {
-    const { url } = req.params;
+app.get('/api/rmbg/', authMiddleware, async (req, res) => {
+    const { url } = req.query;
     const decodedUrl = decodeURIComponent(url);
     try {
         const replicate = new Replicate({
@@ -210,6 +210,7 @@ app.get('/api/rmbg/:url', authMiddleware, async (req, res) => {
 
 //Gen BG api
 app.get('/api/genbg/', authMiddleware, async (req, res) => {
+    console.log('entred');
     try {
         const { url, promptDesc, image_number, NpromptDesc, size, scale } = req.query;
         const decodedUrl2 = decodeURIComponent(promptDesc);
@@ -257,10 +258,32 @@ const CheckoutDetails = new Map([
 //Connect Lemon Squeezy
 
 
-//add login authorisation : authMiddleware,
-
-app.get('/api/lemonsqueezy', async (req, res) => {
+app.get('/api/lemonsqueezy1', authMiddleware, async (req, res) => {
     const apiKey = process.env.LEMONSQUEEZY_API_KEY;
+    try {
+        axios.get('https://api.lemonsqueezy.com/v1/products', {
+            headers: {
+                Accept: 'application/vnd.api+json',
+                'Content-Type': 'application/vnd.api+json',
+                Authorization: `Bearer ${apiKey}`,
+            },
+        })
+            .then(response => {
+                res.status(200).json(response.data.data[0]);
+            })
+            .catch(error => {
+                res.status(400).json({ error: 'error' });
+                console.error(error);
+            });
+
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: 'An error occurred' });
+    }
+});
+
+const apiKey = process.env.LEMONSQUEEZY_API_KEY;
+app.get('/api/lemonsqueezy2', authMiddleware, async (req, res) => {
 
     try {
         axios.get('https://api.lemonsqueezy.com/v1/products', {
@@ -271,7 +294,7 @@ app.get('/api/lemonsqueezy', async (req, res) => {
             },
         })
             .then(response => {
-                res.status(200).json({ Respence: response.data });
+                res.status(200).json(response.data.data[1]);
             })
             .catch(error => {
                 res.status(400).json({ error: 'error' });
@@ -285,70 +308,174 @@ app.get('/api/lemonsqueezy', async (req, res) => {
 });
 
 
-
-//const LemonsqueezyClient = require('lemonsqueezy.ts'); 
-
-//export const client = new LemonsqueezyClient(process.env.LEMONSQUEEZY_API_KEY as String);
-
-
-
-
-
-app.get('/api/postcheckout', async (req, res) => {
+app.get('/api/getCheckOutUrl', async (req, res) => {
+    var user = null;
     try {
-
-        var user = null;
         if (req.isAuthenticated()) {
             user = req.user;
-            res.json(user['id']);
         } else {
-            res.status(401).send('Unauthorized');
+            console.log('Unauthorized');
         }
         if (!user) {
             return res.status(404).json({ message: "Your account was not found" });
         }
-        const variant = (await client.listAllVariants({ productId: process.env.LEMONS_SQUEEZY_PRODUCT_ID })).data[0];
 
+        const checkout = await axios.post(
+            "https://api.lemonsqueezy.com/v1/checkouts",
+            {
+                data: {
+                    type: 'checkouts',
+                    attributes: {
 
-        /*
-             
-                const variant = (await client.listAllVariants({ productId: process.env.LEMONS_SQUEEZY_PRODUCT_ID })).data[0];
-        
-        
-                const checkout = await axios.post(
-                    "https://api.lemonsqueezy.com/v1/checkouts",
-                    {
-                        data: {
-                            type: "checkouts",
-                            attributes: { checkout_data: { email: user.email, custom: [user.id] } },
-                            relationships: {
-                                store: { data: { type: "stores", id: process.env.LEMON_SQUEEZY_STORE_ID } },
-                                variant: { data: { type: "variants", id: variant.id } },
-                            },
+                        checkout_data: {
+                            // discount_code: user.coupon,
+                            email: user.email,
+                            custom: [`${user.id}`]
                         },
+                        preview: true
                     },
-                    { headers: { Authorization: `Bearer ${process.env.LEMONSQUEEZY_API_KEY}` } }
-                );
-        
-                res.status(201).json({ checkoutURL: checkout.data.attributes.url }); */
+                    relationships: {
+                        store: {
+                            data: {
+                                type: 'stores',
+                                id: '26887'
+                            }
+                        },
+                        variant: {
+                            data: {
+                                type: 'variants',
+                                id: '99012'
+                                //id: '101465'
+                            }
+                        }
+                    }
+                },
+            },
+            {
+                headers: {
+                    Accept: 'application/vnd.api+json',
+                    'Content-Type': 'application/vnd.api+json',
+                    Authorization: `Bearer ${apiKey}`
+                }
+            }
+        );
+        res.status(201).json(checkout.data.data.attributes.url);
     } catch (err) {
         res.status(500).json({ message: err.message || err });
     }
-});
-//
-
-
-
-
-
-
-
-
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
 
 });
+
+app.get('/api/getCheckOutUrll', async (req, res) => {
+    var user = null;
+    try {
+        if (req.isAuthenticated()) {
+            user = req.user;
+            console.log(user);
+        } else {
+            console.log('Unauthorized');
+        }
+        if (!user) {
+            return res.status(404).json({ message: "Your account was not found" });
+        }
+
+        const checkout = await axios.post(
+            "https://api.lemonsqueezy.com/v1/checkouts",
+            {
+                data: {
+                    type: 'checkouts',
+                    attributes: {
+
+                        checkout_data: {
+                            // discount_code: user.coupon,
+                            email: user.email,
+                            custom: [`${user.id}`]
+                        },
+                        preview: true
+                    },
+                    relationships: {
+                        store: {
+                            data: {
+                                type: 'stores',
+                                id: '26887'
+                            }
+                        },
+                        variant: {
+                            data: {
+                                type: 'variants',
+                                //id: '99012'
+                                id: '101465'
+                            }
+                        }
+                    }
+                },
+            },
+            {
+                headers: {
+                    Accept: 'application/vnd.api+json',
+                    'Content-Type': 'application/vnd.api+json',
+                    Authorization: `Bearer ${apiKey}`
+                }
+            }
+        );
+        res.status(201).json(checkout.data.data.attributes.url);
+    } catch (err) {
+        res.status(500).json({ message: err.message || err });
+    }
+
+});
+
+
+
+
+//setSubscription 
+/*
+app.get('/api/setSubscription', authMiddleware, (req, res) => {
+    if (req.isAuthenticated()) {
+        const userId = req.user.id;
+        const incrementQuery = 'UPDATE user SET subscribre = 1 WHERE id = ?';
+
+        db.query(incrementQuery, [userId], (err, result) => {
+            if (err) {
+                console.error('Error incrementing attempt:', err);
+                return res.status(500).json({ error: 'An error occurred while incrementing attempt' });
+            }
+
+            return res.json({ message: 'Subscribed successfully' });
+        });
+    } else {
+        return res.json({ message: 'Login please!' });
+    }
+});
+
+app.get('/api/removeSubscription', authMiddleware, (req, res) => {
+    if (req.isAuthenticated()) {
+        const userId = req.user.id;
+        const incrementQuery = 'UPDATE user SET subscribre = 0 WHERE id = ?';
+
+        db.query(incrementQuery, [userId], (err, result) => {
+            if (err) {
+                console.error('Error incrementing attempt:', err);
+                return res.status(500).json({ error: 'An error occurred while incrementing attempt' });
+            }
+
+            return res.json({ message: 'UnSubscribed successfully' });
+        });
+    } else {
+        return res.json({ message: 'Login please!' });
+    }
+});
+*/
+
+app.get("/api", (req, res) => {
+    res.json({ message: "Hello from server!" });
+});
+
+
+
+
+
+
 
 
 
@@ -388,6 +515,11 @@ app.get('*', (req, res) => {
 
 
 
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+
+});
 
 
 
@@ -401,17 +533,13 @@ app.get('*', (req, res) => {
 
 
 
-
+/*
 
 app.listen(PORT, () => {
     console.log(`Server listening on ${PORT}`);
 });
 
-
-
-app.get("/api", (req, res) => {
-    res.json({ message: "Hello from server!" });
-});
+*/
 
 
 
