@@ -344,7 +344,9 @@ app.get('/api/getCheckOutUrl', async (req, res) => {
                         variant: {
                             data: {
                                 type: 'variants',
-                                id: '99012'
+                                id: '140700'
+                                //id: '99012'
+
                                 //id: '101465'
                             }
                         }
@@ -403,8 +405,11 @@ app.get('/api/getCheckOutUrll', async (req, res) => {
                         variant: {
                             data: {
                                 type: 'variants',
+                                id: '140699'
+                                //id: '101465'
+
+
                                 //id: '99012'
-                                id: '101465'
                             }
                         }
                     }

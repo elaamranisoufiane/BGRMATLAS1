@@ -12,9 +12,9 @@ const db = mysql.createPool({
     */
 
     host: 'sql11.freemysqlhosting.net',
-    user: 'sql11654039',
-    password: 'Yty2szZqa8',
-    database: 'sql11654039',
+    user: 'sql11654310',
+    password: 'YsBySaS6vu',
+    database: 'sql11654310',
 
     /*
      host: 'bgai.mysql.database.azure.com',
